@@ -290,6 +290,30 @@ npm run dev
 
 ---
 
+## ☕ Support & Buy Me a Coffee
+If you like this project and find value in it for your trading or research, feel free to use it! A coffee from you is more than enough to support ongoing open-source development, cover infrastructure costs, and keep the terminal evolving.
+<div align="center">
+<a href="https://ko-fi.com/chadi0x">
+  <img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
+</a>
+<br/>
+<sub><i>"If you like it, use it — a coffee from you is enough to fuel the alpha."</i></sub>
+</div>
+
+
+## 💎 Advanced Premium Edition (Institutional Desks)
+Looking for an even more advanced, enterprise-grade terminal engineered for proprietary trading desks and hedge fund managers?
+An **Advanced Premium Edition** is available for acquisition with expanded quantitative, microstructure, and automated execution capabilities
+
+<div align="center">
+  
+[![Telegram](https://img.shields.io/badge/Telegram-Inquire%20Premium%20Edition-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/hisoka0morow)
+
+
+</div>
+
+
+
 ## 🔮 Roadmap: Upcoming Quant Modules
 
 The following institutional tools are scheduled for upcoming terminal releases:
