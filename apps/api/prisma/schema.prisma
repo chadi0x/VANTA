@@ -1,0 +1,245 @@
+// Chadi0x VANTA — Prisma Schema v3
+// Institutional-Grade Financial Intelligence Portal
+// PostgreSQL with full COT, Retail Sentiment, News Intelligence models
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+//  AUTHENTICATION
+// ─────────────────────────────────────────────
+
+model User {
+  id            Int      @id @default(autoincrement())
+  username      String   @unique @db.VarChar(64)
+  email         String   @unique @db.VarChar(128)
+  passwordHash  String   @map("password_hash") @db.Text
+  role          String   @default("analyst") @db.VarChar(32)
+  lastLogin     DateTime? @map("last_login")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+//  COT REPORTS — 2-WEEK ROLLING DELTA ENGINE
+// ─────────────────────────────────────────────
+
+model CotReport {
+  id                    Int      @id @default(autoincrement())
+  reportDate            DateTime @map("report_date") @db.Date
+  assetCode             String   @map("asset_code") @db.VarChar(12)
+  assetName             String   @map("asset_name") @db.VarChar(32)
+  // Open Interest
+  openInterest          Int      @map("open_interest")
+  // Non-Commercial (Managed Money / Speculators)
+  nonCommercialLong     Int      @map("non_commercial_long")
+  nonCommercialShort    Int      @map("non_commercial_short")
+  nonCommercialSpreads  Int      @default(0) @map("non_commercial_spreads")
+  // Commercial (Hedgers / Swap Dealers)
+  commercialLong        Int      @map("commercial_long")
+  commercialShort       Int      @map("commercial_short")
+  // Other Reportables
+  otherReportableLong   Int      @default(0) @map("other_reportable_long")
+  otherReportableShort  Int      @default(0) @map("other_reportable_short")
+  // Non-Reportable (Retail / Small Speculators)
+  nonReportableLong     Int      @default(0) @map("non_reportable_long")
+  nonReportableShort    Int      @default(0) @map("non_reportable_short")
+  // Derived fields stored for history
+  speculatorNet         Int      @map("speculator_net")
+  oiVelocity14d         Float    @default(0) @map("oi_velocity_14d")
+  ingestedAt            DateTime @default(now()) @map("ingested_at")
+
+  @@unique([assetCode, reportDate], name: "asset_report_unique")
+  @@index([assetCode, reportDate(sort: Desc)])
+  @@map("cot_reports")
+}
+
+// ─────────────────────────────────────────────
+//  RETAIL SENTIMENT — CONTRARIAN SENTINEL FEED
+// ─────────────────────────────────────────────
+
+model RetailSentiment {
+  id              Int      @id @default(autoincrement())
+  asset           String   @db.VarChar(16)    // XAUUSD, XAGUSD, USOIL, USIDX
+  source          String   @db.VarChar(32)    // MYFXBOOK, OANDA, IG
+  longPercent     Float    @map("long_percent")
+  shortPercent    Float    @map("short_percent")
+  longPositions   Int?     @map("long_positions")
+  shortPositions  Int?     @map("short_positions")
+  capturedAt      DateTime @default(now()) @map("captured_at")
+
+  @@index([asset, capturedAt(sort: Desc)])
+  @@map("retail_sentiment")
+}
+
+// ─────────────────────────────────────────────
+//  INTELLIGENCE FEED — "THE PULSE"
+// ─────────────────────────────────────────────
+
+model IntelligenceFeed {
+  id                  String   @id @default(cuid())
+  timestampUtc        DateTime @map("timestamp_utc")
+  timestampMicros     BigInt   @default(0) @map("timestamp_micros")
+  source              String   @db.VarChar(64)
+  headline            String   @db.Text
+  keyTakeaways        String[] @map("key_takeaways")
+  impactRating        String   @map("impact_rating") @db.VarChar(24)  // Critical/High/Moderate/Informational
+  affectedInstruments String[] @map("affected_instruments")
+  surpriseIndex       Float?   @map("surprise_index")  // (Actual - Forecast) / StdDev
+  sentimentScore      Float    @default(0) @map("sentiment_score")
+  sentimentPolarity   String   @default("NEUTRAL") @map("sentiment_polarity") @db.VarChar(24)
+  marketSession       String   @default("") @map("market_session") @db.VarChar(32)
+  link                String   @default("") @db.Text
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@index([timestampUtc(sort: Desc)])
+  @@map("intelligence_feed")
+}
+
+// ─────────────────────────────────────────────
+//  ECONOMIC EVENTS CALENDAR
+// ─────────────────────────────────────────────
+
+model EconomicEvent {
+  id               String   @id
+  timestampUtc     DateTime @map("timestamp_utc")
+  dateFormatted    String   @default("") @map("date_formatted") @db.VarChar(32)
+  timeFormatted    String   @default("") @map("time_formatted") @db.VarChar(16)
+  marketSession    String   @default("") @map("market_session") @db.VarChar(32)
+  asset            String   @db.VarChar(16)
+  impactLevel      String   @map("impact_level") @db.VarChar(16)
+  actualMetric     String?  @map("actual_metric") @db.VarChar(32)
+  forecast         String?  @db.VarChar(32)
+  previous         String?  @db.VarChar(32)
+  headline         String   @db.Text
+  source           String   @db.VarChar(64)
+  deviationType    String   @default("PENDING") @map("deviation_type") @db.VarChar(32)
+  deviationScore   Float    @default(0) @map("deviation_score")
+  sentimentScore   Float    @default(0) @map("sentiment_score")
+  sentimentPolarity String  @default("NEUTRAL") @map("sentiment_polarity") @db.VarChar(24)
+  targetTicker     String?  @map("target_ticker") @db.VarChar(32)
+  targetAssetName  String?  @map("target_asset_name") @db.VarChar(64)
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@index([timestampUtc(sort: Desc)])
+  @@index([asset])
+  @@map("economic_events")
+}
+
+// ─────────────────────────────────────────────
+//  SCRAPER HEALTH TELEMETRY
+// ─────────────────────────────────────────────
+
+model ScraperHealth {
+  id           Int      @id @default(autoincrement())
+  workerName   String   @map("worker_name") @db.VarChar(64)
+  status       String   @db.VarChar(16)   // HEALTHY, DEGRADED, FAILED, RATE_LIMITED
+  lastRunAt    DateTime @map("last_run_at")
+  recordsIngested Int   @default(0) @map("records_ingested")
+  errorMessage String?  @map("error_message") @db.Text
+  latencyMs    Int      @default(0) @map("latency_ms")
+  reportedAt   DateTime @default(now()) @map("reported_at")
+
+  @@index([workerName, reportedAt(sort: Desc)])
+  @@map("scraper_health")
+}
+
+// ─────────────────────────────────────────────
+//  TREASURY YIELDS & INTERMARKET
+// ─────────────────────────────────────────────
+
+model TreasuryYield {
+  id           Int      @id @default(autoincrement())
+  recordDate   DateTime @map("record_date") @db.Date
+  bc1Month     Float?   @map("bc_1month")
+  bc3Month     Float?   @map("bc_3month")
+  bc6Month     Float?   @map("bc_6month")
+  bc1Year      Float?   @map("bc_1year")
+  bc2Year      Float?   @map("bc_2year")
+  bc5Year      Float?   @map("bc_5year")
+  bc10Year     Float?   @map("bc_10year")
+  bc30Year     Float?   @map("bc_30year")
+  spread10y2y  Float?   @map("spread_10y_2y")
+  spread10y3m  Float?   @map("spread_10y_3m")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@unique([recordDate])
+  @@index([recordDate(sort: Desc)])
+  @@map("treasury_yields")
+}
+
+// ─────────────────────────────────────────────
+//  CME FEDWATCH PROBABILITIES
+// ─────────────────────────────────────────────
+
+model FedWatchProbability {
+  id              Int      @id @default(autoincrement())
+  meetingDate     DateTime @map("meeting_date") @db.Date
+  targetRateRange String   @map("target_rate_range") @db.VarChar(32)
+  probabilityPct  Float    @map("probability_pct")
+  priorDayPct     Float?   @map("prior_day_pct")
+  priorWeekPct    Float?   @map("prior_week_pct")
+  priorMonthPct   Float?   @map("prior_month_pct")
+  capturedAt      DateTime @default(now()) @map("captured_at")
+
+  @@index([meetingDate, capturedAt(sort: Desc)])
+  @@map("fedwatch_probabilities")
+}
+
+// ─────────────────────────────────────────────
+//  CENTRAL BANK POLICY SPEECHES & TRANSCRIPTS
+// ─────────────────────────────────────────────
+
+model CentralBankSpeech {
+  id               String   @id @default(cuid())
+  speakerName      String   @map("speaker_name") @db.VarChar(64)
+  centralBank      String   @map("central_bank") @db.VarChar(32) // FED, ECB, BOE, BOJ
+  title            String   @db.Text
+  speechUrl        String?  @map("speech_url") @db.Text
+  hawkishScore     Float    @default(0) @map("hawkish_score") // -5.0 to +5.0
+  keyThemes        String[] @map("key_themes")
+  transcriptSnippet String? @map("transcript_snippet") @db.Text
+  publishedAt      DateTime @map("published_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@index([publishedAt(sort: Desc)])
+  @@index([centralBank])
+  @@map("central_bank_speeches")
+}
+
+// ─────────────────────────────────────────────
+//  VANTA CHRONICLE — TRADE & MACRO JOURNAL
+// ─────────────────────────────────────────────
+
+model TradeJournalEntry {
+  id              String   @id @default(cuid())
+  asset           String   @db.VarChar(16)
+  tradeDirection  String   @map("trade_direction") @db.VarChar(16) // LONG, SHORT, HEDGE
+  entryPrice      Float    @map("entry_price")
+  stopLoss        Float?   @map("stop_loss")
+  targetPrice     Float?   @map("target_price")
+  riskRewardRatio Float?   @map("risk_reward_ratio")
+  lots            Float?
+  pnlUSD          Float?   @map("pnl_usd")
+  outcome         String   @default("OPEN") @db.VarChar(16) // WIN, LOSS, SCRATCH, OPEN
+  thesisNotes     String   @map("thesis_notes") @db.Text
+  confluences     String[]
+  macroSnapshot   Json     @map("macro_snapshot") // Stores 25-point quantitative state vector
+  snapshotImage   String?  @map("snapshot_image") @db.Text // Base64 data URL
+  tags            String[]
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([asset, createdAt(sort: Desc)])
+  @@map("trade_journal_entries")
+}
+
+

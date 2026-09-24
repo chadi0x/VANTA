@@ -1,0 +1,61 @@
+# ==============================================================================
+# Chadi0x VANTA — Institutional Terminal .gitignore
+# ==============================================================================
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build Outputs & Bundles
+dist/
+build/
+out/
+.next/
+*.tsbuildinfo
+next-env.d.ts
+
+# Environment & Secrets (NEVER COMMIT SENSITIVE KEYS)
+.env
+.env*.local
+.env.development
+.env.test
+.env.production
+!.env.example
+
+# Logs & Telemetry Dumps
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS & Editor Metadata
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swo
+*.swp
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+
+# Temporary & Cache Directories
+tmp/
+temp/
+.cache/
+.turbo/
