@@ -1,4 +1,4 @@
-# Chadi0x VANTA — Institutional Macroeconomic Alpha Terminal
+#VANTA — Institutional Macroeconomic Alpha Terminal
 
 <div align="center">
 
