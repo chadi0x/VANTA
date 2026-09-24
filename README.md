@@ -1,4 +1,8 @@
-#VANTA — Institutional Macroeconomic Alpha Terminal
+<div align="center">
+  
+### VANTA — Institutional Macroeconomic Alpha Terminal
+
+</div>
 
 <div align="center">
 
@@ -10,6 +14,7 @@
  ╚██████╗██║  ██║██║  ██║██████╔╝██║╚██████╔╝██╔╝ ██╗     ╚████╔╝ ██║  ██║██║ ╚████║   ██║   ██║  ██║
   ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═╝      ╚═══╝  ╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝
 ```
+<img width="3168" height="1344" alt="vanta" src="https://github.com/user-attachments/assets/35e8cbee-d76e-43fa-8c18-427a2046ad45" />
 
 ### Real-Time Macroeconomic Intelligence Portal · High-Precision Deviation Engine · Institutional Trade Chronicle
 
@@ -103,6 +108,15 @@ flowchart TD
 ```
 
 ---
+## 📸 Visual Showcase & Terminal Previews
+<div align="center">
+  
+### Main Terminal Cockpit — Real-Time Macro Pulse & Candlestick Stream
+![Chadi0x VANTA Main Cockpit](https://github.com/user-attachments/assets/3376fc74-1c68-4799-a3c6-e4773bd8fcd5)
+*Real-time multi-asset ticker tape, breaking intelligence wire, macroeconomic deviation alerts, and dual-engine candlestick charting.*
+<br/>
+
+</div>
 
 ## 🎛 The 14 Institutional Modules
 
